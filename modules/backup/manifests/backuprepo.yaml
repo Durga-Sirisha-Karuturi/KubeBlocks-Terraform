@@ -1,0 +1,33 @@
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: BackupRepo
+
+metadata:
+  name: minio-repo1
+
+  annotations:
+    dataprotection.kubeblocks.io/is-default-repo: 'true'
+
+spec:
+  storageProviderRef: minio
+
+  accessMethod: Tool
+
+  volumeCapacity: 3Gi
+
+  pvReclaimPolicy: Retain
+
+  config:
+    bucket: ${minio_bucket}
+
+    endpoint: '${minio_endpoint}'
+
+    region: us-west-1
+
+    insecure: "true"
+
+    s3ForcePathStyle: "true"
+
+  credential:
+    name: s3-credential-for-backuprepo
+    namespace: kb-system
+

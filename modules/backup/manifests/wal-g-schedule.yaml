@@ -1,0 +1,26 @@
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: BackupSchedule
+
+metadata:
+  name: ${cluster_name}-wal-archive
+  namespace: ${namespace}
+
+spec:
+  backupPolicyName: ${cluster_name}-postgresql-backup-policy
+
+  schedules:
+    - backupMethod: wal-g
+
+      cronExpression: "${full_backup_schedule}"
+
+      enabled: true
+
+      retentionPeriod: ${backup_retention}
+
+    - backupMethod: wal-g-archive
+
+      cronExpression: "${wal_backup_schedule}"
+
+      enabled: true
+
+      retentionPeriod: 8d

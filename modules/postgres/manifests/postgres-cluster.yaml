@@ -1,0 +1,97 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+
+metadata:
+  name: ${cluster_name}
+  namespace: ${namespace}
+
+spec:
+  terminationPolicy: Delete
+
+  clusterDef: postgresql
+
+  topology: replication
+
+%{ if enable_loadbalancer }
+
+  services:
+
+    - name: pglb
+
+      serviceName: pglb
+
+      componentSelector: postgresql
+
+      roleSelector: primary
+
+      spec:
+        type: ${service_type}
+
+        ports:
+          - name: tcp-postgresql
+            port: 5432
+            targetPort: 5432
+
+%{ if replicas > 1 }
+
+    - name: pglb-read
+
+      serviceName: pglb-read
+
+      componentSelector: postgresql
+
+      roleSelector: secondary
+
+      spec:
+        type: ${service_type}
+
+        ports:
+          - name: tcp-postgresql
+            port: 5432
+            targetPort: 5432
+
+%{ endif }
+
+%{ endif }
+
+  componentSpecs:
+    - name: postgresql
+
+      serviceVersion: "${service_version}"
+
+      disableExporter: ${disable_exporter}
+
+      systemAccounts:
+        - name: postgres
+          secretRef:
+            name: custom-pg-secret
+            namespace: ${namespace}
+
+      labels:
+        apps.kubeblocks.postgres.patroni/scope: ${cluster_name}-postgresql
+
+      replicas: ${replicas}
+
+      resources:
+
+        limits:
+          cpu: "${cpu_limit}"
+          memory: "${memory_limit}"
+
+        requests:
+          cpu: "${cpu_request}"
+          memory: "${memory_request}"
+
+      volumeClaimTemplates:
+        - name: data
+
+          spec:
+            storageClassName: ${storage_class}
+
+            accessModes:
+              - ReadWriteOnce
+
+            resources:
+              requests:
+                storage: ${storage_size}
+

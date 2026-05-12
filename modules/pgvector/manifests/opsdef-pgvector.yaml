@@ -1,0 +1,43 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsDefinition
+
+metadata:
+  name: enable-pgvector
+  namespace: ${namespace}
+
+spec:
+  componentInfos:
+    - componentDefinitionName: postgresql
+
+  podInfoExtractors:
+    - name: primaryPod
+
+      podSelector:
+        role: primary
+        multiPodSelectionPolicy: Any
+
+  actions:
+    - name: enable-vector
+
+      exec:
+        podInfoExtractorName: primaryPod
+        containerName: postgresql
+
+        command:
+          - /bin/bash
+          - -c
+          - |
+            DATABASES=$(psql -U postgres -At -c \
+              "SELECT datname FROM pg_database
+               WHERE datistemplate=false
+               AND datname NOT IN ('template0','template1');")
+
+            for DB in $DATABASES; do
+              echo "Enabling vector in: $DB"
+
+              psql -U postgres -d "$DB" \
+                -c "CREATE EXTENSION IF NOT EXISTS vector;"
+            done
+
+            echo "All done."
+

@@ -1,0 +1,21 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+
+metadata:
+  name: pg-enable-archive
+  namespace: ${namespace}
+
+spec:
+  type: Reconfiguring
+
+  clusterName: ${cluster_name}
+
+  reconfigures:
+    - componentName: postgresql
+
+      parameters:
+        - key: archive_mode
+          value: "on"
+
+        - key: archive_command
+          value: "'wal-g wal-push %p'"

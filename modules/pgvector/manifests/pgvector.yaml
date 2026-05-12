@@ -1,0 +1,18 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+
+metadata:
+  name: run-enable-pgvector
+  namespace: ${namespace}
+
+spec:
+  clusterName: ${cluster_name}
+
+  type: Custom
+
+  custom:
+    opsDefinitionName: enable-pgvector
+
+    components:
+      - componentName: postgresql
+
