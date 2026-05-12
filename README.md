@@ -21,20 +21,19 @@ Terraform
    │
    ├── Infrastructure Module
    │      ├── Snapshot Controller
-   │      ├── KubeBlocks CRDS
-   │      └── KubeBlocks Helm
+   │      ├── KubeBlocks CRDs
+   │      └── KubeBlocks Helm Deployment
    │
    ├── PostgreSQL Module
    │      ├── PostgreSQL HA Cluster
    │      ├── Primary LoadBalancer
    │      ├── Read Replica LoadBalancer
-   │      └── Postgresql DB Password
+   │      └── PostgreSQL Database Password
    │
    ├── Backup Module
    │      ├── BackupRepo
-   │      ├── WAL-G Full Backups Schedule
-   │      ├── WAL Archiving Schedule
-   │
+   │      ├── WAL-G Full Backup Schedule
+   │      └── WAL Archiving Schedule
    │
    ├── pgvector Module
    │      └── PostgreSQL Vector Extension
@@ -42,6 +41,18 @@ Terraform
    └── pgAdmin Module
           └── PostgreSQL Web UI
 ```
+
+---
+
+# Project Workflow
+
+1. Deploy Kubernetes dependencies
+2. Install KubeBlocks operators and CRDs
+3. Provision PostgreSQL HA cluster
+4. Configure BackupRepo and WAL-G
+5. Enable pgvector extension
+6. Deploy pgAdmin UI
+7. Access PostgreSQL services
 
 ---
 
@@ -67,11 +78,19 @@ terraform init
 
 ## Configure Variables
 
-Edit:
+Edit the Terraform variables file:
 
 ```bash
 vim terraform.tfvars
 ```
+
+Example configurations include:
+
+- PostgreSQL credentials
+- Storage class
+- MinIO backup configuration
+- Namespace settings
+- Resource allocations
 
 ---
 
@@ -90,6 +109,10 @@ terraform apply -auto-approve
 ```bash
 kubectl get pods -n postgres
 ```
+
+### PostgreSQL Cluster Pods
+
+![PostgreSQL Pods](images/pod.png)
 
 ---
 
@@ -136,9 +159,13 @@ kubectl get svc -n pgadmin
 # Service Purpose
 
 | Service | Purpose |
-|---|---|
-| pglb | Primary writable endpoint |
-| pglb-read | Read replica endpoint |
+|----------|----------|
+| `pglb` | Primary writable endpoint |
+| `pglb-read` | Read replica endpoint |
+
+### PostgreSQL Services
+
+![PostgreSQL Services](images/svc.png)
 
 ---
 
@@ -152,7 +179,7 @@ kubectl get svc -n pgadmin
 
 ---
 
-## Open
+## Open in Browser
 
 ```text
 http://<NODE-IP>:<NODEPORT>
@@ -160,10 +187,63 @@ http://<NODE-IP>:<NODEPORT>
 
 ---
 
-## Login
+## Login Credentials
 
 ```text
 Email: admin@gmail.com
-
 Password: admin123
+```
+
+---
+
+# Register Cluster into pgAdmin
+
+## Step 1: Register Server
+
+Open pgAdmin dashboard.
+
+Right click on **Servers** → Click **Register** → **Server**
+
+![Register Server](images/register.png)
+
+---
+
+## Step 2: Give Cluster Name
+
+Enter a cluster name that should be displayed inside pgAdmin.
+
+Example:
+
+```text
+DevOps-Cluster
+```
+
+![Cluster Name](images/name.png)
+
+---
+
+## Step 3: Configure Connection
+
+In the **Connection** tab:
+
+- Host name/address → Give PostgreSQL LoadBalancer service endpoint
+- Port → `5432`
+- Username → `postgres`
+- Password → PostgreSQL password created during deployment
+
+Enable:
+
+- Save Password
+
+![Connection Configuration](images/connect.png)
+
+---
+
+## Step 4: Connected PostgreSQL Cluster
+
+After saving, the PostgreSQL cluster will appear in pgAdmin.
+
+![Connected Cluster](images/cluster.png)
+
+---
 ```
