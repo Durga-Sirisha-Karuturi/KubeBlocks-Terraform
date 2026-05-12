@@ -122,6 +122,17 @@ kubectl get pods -n postgres
 kubectl get svc -n postgres
 ```
 
+# Service Purpose
+
+| Service | Purpose |
+|----------|----------|
+| `pglb` | Primary writable endpoint |
+| `pglb-read` | Read replica endpoint |
+
+### PostgreSQL Services
+
+![PostgreSQL Services](images/svc.png)
+
 ---
 
 ## Backup Repository
@@ -145,27 +156,6 @@ kubectl get backupschedules -n postgres
 ```bash
 kubectl get opsrequest -n postgres
 ```
-
----
-
-## pgAdmin Service
-
-```bash
-kubectl get svc -n pgadmin
-```
-
----
-
-# Service Purpose
-
-| Service | Purpose |
-|----------|----------|
-| `pglb` | Primary writable endpoint |
-| `pglb-read` | Read replica endpoint |
-
-### PostgreSQL Services
-
-![PostgreSQL Services](images/svc.png)
 
 ---
 
